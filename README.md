@@ -21,4 +21,5 @@ System.out.println(new Compiler().renderFormtext(s));
 * renderFormtext() retrun the HTML text.
 
 ## Stage 1
-  - Just Contain Object To Correct Order With Indents  
+  - Just Contain Object To Correct Order With Indents.
+  - ID's and Classes are working.
