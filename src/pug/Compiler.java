@@ -15,7 +15,7 @@ public class Compiler {
 
     public String renderFormtext(String text) {
         text = text.trim();
-        Block roothtml = new Block(text.split("\n")[0],0);
+        Block roothtml = new Block(text.split("\n")[0], 0);
         HashMap<String, Boolean> area = new HashMap<>();
         String linebyline[] = text.split("\n");
         String currentpath = "0";
@@ -23,8 +23,23 @@ public class Compiler {
         for (int i = 1; i < linebyline.length; i++) {
             String lines = linebyline[i];
             int newindent = indetCount(lines);
-            currentpath = partOfPath(currentpath,  newindent-oldindet);
-            roothtml.addToBlock(new Block(lines.trim(),newindent), currentpath);
+            currentpath = partOfPath(currentpath, newindent - oldindet);
+            String code = lines.trim();
+            String tagname = code.split(" ")[0];
+            Block b;
+            if (tagname.startsWith("#")) {
+                b = new Block("div", newindent);
+                b.addAttribute("id", tagname.substring(1));
+            } else if (tagname.startsWith(".")) {
+                b = new Block("div", newindent);
+                b.addAttribute("class", tagname.substring(1));
+            } else {
+                b = new Block(tagname, newindent);
+            }
+            if (code.split(" ").length > 1) {
+                b.setIntertxt(code.substring(code.split(" ")[0].length() + 1));
+            }
+            roothtml.addToBlock(b, currentpath);
             oldindet = newindent;
         }
         roothtml.updateInnertxt();
@@ -42,17 +57,17 @@ public class Compiler {
         }
         return 0;
     }
-    
-    private String partOfPath(String currentpath,int s){
-        if(s < 0){
-           String rootpath = currentpath.substring(0, currentpath.length()+(s*2));
-           int numb = Integer.parseInt(rootpath.substring(rootpath.length()-1))+1;
-           return rootpath.substring(0,rootpath.length()-2)+"."+numb;
-        }else if(s > 0){
-           return currentpath+".0";
-        }else{
-           int numb = Integer.parseInt(currentpath.substring(currentpath.length()-1))+1;
-           return currentpath.substring(0, currentpath.length()-2)+"."+numb;
+
+    private String partOfPath(String currentpath, int s) {
+        if (s < 0) {
+            String rootpath = currentpath.substring(0, currentpath.length() + (s * 2));
+            int numb = Integer.parseInt(rootpath.substring(rootpath.length() - 1)) + 1;
+            return rootpath.substring(0, rootpath.length() - 2) + "." + numb;
+        } else if (s > 0) {
+            return currentpath + ".0";
+        } else {
+            int numb = Integer.parseInt(currentpath.substring(currentpath.length() - 1)) + 1;
+            return currentpath.substring(0, currentpath.length() - 2) + "." + numb;
         }
     }
 }

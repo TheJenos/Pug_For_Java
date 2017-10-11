@@ -130,12 +130,14 @@ public class Block {
     
     @Override
     public String toString() {
+        if(innerblocks.size()>0){
+            updateInnertxt();
+            updateAttribtxtt();
+        }
         if (isAnEmptyTag()) {
             return getIndent()+"<" + tagename + attribtxt + "/>\n";
         } else {
-            updateInnertxt();
-            updateAttribtxtt();
-            return getIndent()+"<" + tagename + attribtxt + ">\n" + intertxt +getIndent()+ "</" + tagename + ">\n";
+            return getIndent()+"<" + tagename + attribtxt + ">"+(innerblocks.size()<1?"":"\n") + intertxt +(innerblocks.size()<1?"":getIndent())+ "</" + tagename + ">\n";
         }
     }
 
