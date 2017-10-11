@@ -15,7 +15,7 @@ public class Compiler {
 
     public String renderFormtext(String text) {
         text = text.trim();
-        Block roothtml = new Block(text.split("\n")[0]);
+        Block roothtml = new Block(text.split("\n")[0],0);
         HashMap<String, Boolean> area = new HashMap<>();
         String linebyline[] = text.split("\n");
         String currentpath = "0";
@@ -24,11 +24,10 @@ public class Compiler {
             String lines = linebyline[i];
             int newindent = indetCount(lines);
             currentpath = partOfPath(currentpath,  newindent-oldindet);
-            roothtml.addToBlock(new Block(lines.trim()), currentpath);
-            roothtml.updateInnertxt();
-            System.out.println(roothtml);
+            roothtml.addToBlock(new Block(lines.trim(),newindent), currentpath);
             oldindet = newindent;
         }
+        roothtml.updateInnertxt();
         return roothtml.toString();
     }
 

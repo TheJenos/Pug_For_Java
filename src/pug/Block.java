@@ -19,11 +19,13 @@ public class Block {
     private String attribtxt = "";
     private String tagename = "";
     private String path = "0";
+    private int indent = 0;
     private ArrayList<Block> innerblocks = new ArrayList<Block>();
     private HashMap<String, String> attriblist = new HashMap<String, String>();
 
-    public Block(String tagname) {
+    public Block(String tagname,int indent) {
         this.tagename = tagname;
+        this.indent = indent;
     }
 
     public void setPath(String path) {
@@ -118,14 +120,22 @@ public class Block {
         return intertxt;
     }
 
+    private String getIndent(){
+        String s = "";
+        for (int i = 0; i < indent; i++) {
+            s+="\t";
+        }
+        return s;
+    }
+    
     @Override
     public String toString() {
         if (isAnEmptyTag()) {
-            return "<" + tagename + attribtxt + "/>\n";
+            return getIndent()+"<" + tagename + attribtxt + "/>\n";
         } else {
             updateInnertxt();
             updateAttribtxtt();
-            return "<" + tagename + attribtxt + ">\n" + intertxt + "</" + tagename + ">\n";
+            return getIndent()+"<" + tagename + attribtxt + ">\n" + intertxt +getIndent()+ "</" + tagename + ">\n";
         }
     }
 
