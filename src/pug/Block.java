@@ -28,6 +28,14 @@ public class Block {
         this.indent = indent;
     }
 
+    public void setTagename(String tagename) {
+        this.tagename = tagename;
+    }
+
+    public String getTagename() {
+        return tagename;
+    }
+    
     public void setPath(String path) {
         this.path = path;
     }
@@ -133,6 +141,9 @@ public class Block {
         if(innerblocks.size()>0){
             updateInnertxt();
             updateAttribtxtt();
+        }
+        if(tagename.equals("|")){
+            return getIndent()+intertxt+"\n";
         }
         if (isAnEmptyTag()) {
             return getIndent()+"<" + tagename + attribtxt + "/>\n";

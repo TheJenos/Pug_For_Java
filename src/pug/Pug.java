@@ -19,12 +19,19 @@ public class Pug {
                 + "  head\n"
                 + "    title My Site - #{title}\n"
                 + "    block scripts\n"
-                + "      script(src='/jquery.js')\n"
+                + "      script(src='/jquery.js').\n"
+                + "      dfsdfsdfs\n"
+                + "      sadasdasd\n"
                 + "  body\n"
+                + "    .col.lol\n"
+                + "      | sdfsdf\n"
+                + "      br\n"
+                + "      | sdfsdfsdasdasd\n"
                 + "    block content\n"
                 + "    block foot\n"
                 + "      #footer\n"
                 + "        p some footer content";
+        //System.out.println(s);
         System.out.println(new Compiler().renderFormtext(s));
 
     }
