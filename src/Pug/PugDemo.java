@@ -3,13 +3,13 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package pug;
-import pug.Compiler;
+package Pug;
+import Pug.PugCompiler;
 /**
  *
  * @author Thanura
  */
-public class Pug {
+public class PugDemo {
 
     /**
      * @param args the command line arguments
@@ -18,21 +18,16 @@ public class Pug {
         String s = "html\n"
                 + "  head\n"
                 + "    title My Site - #{title}\n"
-                + "    block scripts\n"
-                + "      script(src='/jquery.js').\n"
-                + "      dfsdfsdfs\n"
-                + "      sadasdasd\n"
+                + "    script(src='/jquery.js',type='text/javascript')\n"
                 + "  body\n"
                 + "    .col.lol\n"
                 + "      | sdfsdf\n"
                 + "      br\n"
                 + "      | sdfsdfsdasdasd\n"
-                + "    block content\n"
-                + "    block foot\n"
-                + "      #footer\n"
-                + "        p some footer content";
+                + "    #footer\n"
+                + "        p some footer content\n";
         //System.out.println(s);
-        System.out.println(new Compiler().renderFormtext(s));
+        System.out.println(new PugCompiler().renderFormtext(s));
 
     }
 

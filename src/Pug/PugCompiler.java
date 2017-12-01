@@ -3,7 +3,7 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package pug;
+package Pug;
 
 import java.util.HashMap;
 
@@ -11,7 +11,7 @@ import java.util.HashMap;
  *
  * @author Thanura
  */
-public class Compiler {
+public class PugCompiler {
 
     public String renderFormtext(String text) {
         text = text.trim();
@@ -25,17 +25,19 @@ public class Compiler {
             int newindent = indetCount(lines);
             String code = lines.trim();
             String tagname = code.split(" ")[0];
+            tagname = tagname.endsWith(".")? tagname.substring(0,tagname.length()-1):tagname;
             currentpath = partOfPath(currentpath, newindent - oldindet);
             Block b = new Block(tagname, newindent);
             setIDsAndClasses(b, tagname);
-            if(lines.endsWith(".")){
-                b.setIntertxt(b.getIntertxt()+"\n");
+            if (lines.endsWith(".")) {
+                b.setIntertxt(b.getIntertxt() + "\n");
+                int lastindet = newindent;
                 while (newindent <= indetCount(linebyline[++i])) {
-                    b.setIntertxt(b.getIntertxt()+getIndent(newindent+1)+linebyline[i].trim()+"\n");
+                    b.setIntertxt(b.getIntertxt() + getIndent(indetCount(linebyline[i])) + linebyline[i].trim() + "\n");
                     newindent = indetCount(linebyline[i]);
                 }
-                b.setIntertxt(b.getIntertxt()+getIndent(newindent));
-            }else if (code.split(" ").length > 1) {
+                b.setIntertxt(b.getIntertxt() + getIndent(lastindet));
+            } else if (code.split(" ").length > 1) {
                 b.setIntertxt(code.substring(code.split(" ")[0].length() + 1));
             }
             roothtml.addToBlock(b, currentpath);
@@ -46,8 +48,9 @@ public class Compiler {
     }
 
     private void setIDsAndClasses(Block b, String s) {
-        String hash[] = s.split("#");
-        String dot[] = s.split("\\.");
+        String name = s.split("\\(")[0];
+        String hash[] = name.split("#");
+        String dot[] = name.split("\\.");
         if (hash[0].equals("") || dot[0].equals("")) {
             b.setTagename("div");
         } else if (hash.length > 1) {
@@ -73,6 +76,20 @@ public class Compiler {
                 classes += string + " ";
             }
             b.addAttribute("class", classes.substring(0, classes.length() - 1));
+        }
+        if (s.split("\\(").length > 1) {
+            String attribs[] = s.substring(s.indexOf("(") + 1, s.indexOf(")")).split(",");
+            for (int i = 0; i < attribs.length; i++) {
+                String key[] = attribs[i].split("=");
+                if (key.length>1) {
+                    b.addAttribute(key[0], key[1].replaceAll("\"", "").replaceAll("'", ""));
+                }else{
+                    b.addAttribute(key[0], "true");
+                }
+            }
+            b.setTagename(b.getTagename().replaceAll(s.substring(s.indexOf("(")+1 , s.indexOf(")")), ""));
+            b.setTagename(b.getTagename().replaceAll("\\(", ""));
+            b.setTagename(b.getTagename().replaceAll("\\)", ""));
         }
     }
 
@@ -100,11 +117,11 @@ public class Compiler {
             return currentpath.substring(0, currentpath.length() - 2) + "." + numb;
         }
     }
-    
-    private String getIndent(int indent){
+
+    private String getIndent(int indent) {
         String s = "";
         for (int i = 0; i < indent; i++) {
-            s+="\t";
+            s += "\t";
         }
         return s;
     }
