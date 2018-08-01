@@ -16,18 +16,21 @@ public class PugDemo {
      */
     public static void main(String[] args) {
         String s = "html\n"
-                + "  head\n"
-                + "    title My Site - #{title}\n"
-                + "    script(src='/jquery.js',type='text/javascript')\n"
-                + "  body\n"
-                + "    .col.lol\n"
-                + "      | sdfsdf\n"
-                + "      br\n"
-                + "      | sdfsdfsdasdasd\n"
-                + "    #footer\n"
-                + "        p some footer content\n";
+                + "    head\n"
+                + "        \n"
+                + "        title My Site - #{title}\n"
+                + "        script(src='/jquery.js',type='text/javascript das')\n"
+                + "    body\n"
+                + "        .col.lol(name='sadas')\n"
+                + "            | sdfsdf\n"
+                + "            br\n"
+                + "            | sdfsdfsdasdasd\n"
+                + "        #footer\n"
+                + "            p some footer content\n";
+        String ss = "dd\n"
+                + "    dasd\n";
         //System.out.println(s);
-        System.out.println(new PugCompiler().renderFormtext(s));
+        System.out.println(new PugCompiler().renderDom(s));
 
     }
 

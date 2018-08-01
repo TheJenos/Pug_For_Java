@@ -5,7 +5,12 @@
  */
 package Pug;
 
+import Utils.Block;
+import static Pug.Dom.indetCount;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  *
@@ -13,41 +18,71 @@ import java.util.HashMap;
  */
 public class PugCompiler {
 
-    public String renderFormtext(String text) {
+    ArrayList var = new ArrayList();
+    
+    /**
+     *
+     * @param text
+     * @return
+     */
+    public String getTextFromLine(String text) {
         text = text.trim();
-        Block roothtml = new Block(text.split("\n")[0], 0);
-        HashMap<String, Boolean> area = new HashMap<>();
-        String linebyline[] = text.split("\n");
-        String currentpath = "0";
-        int oldindet = 0;
-        for (int i = 1; i < linebyline.length; i++) {
-            String lines = linebyline[i];
-            int newindent = indetCount(lines);
-            String code = lines.trim();
-            String tagname = code.split(" ")[0];
-            tagname = tagname.endsWith(".")? tagname.substring(0,tagname.length()-1):tagname;
-            currentpath = partOfPath(currentpath, newindent - oldindet);
-            Block b = new Block(tagname, newindent);
-            setIDsAndClasses(b, tagname);
-            if (lines.endsWith(".")) {
-                b.setIntertxt(b.getIntertxt() + "\n");
-                int lastindet = newindent;
-                while (newindent <= indetCount(linebyline[++i])) {
-                    b.setIntertxt(b.getIntertxt() + getIndent(indetCount(linebyline[i])) + linebyline[i].trim() + "\n");
-                    newindent = indetCount(linebyline[i]);
-                }
-                b.setIntertxt(b.getIntertxt() + getIndent(lastindet));
-            } else if (code.split(" ").length > 1) {
-                b.setIntertxt(code.substring(code.split(" ")[0].length() + 1));
-            }
-            roothtml.addToBlock(b, currentpath);
-            oldindet = newindent;
+        Matcher mss = Pattern.compile("([\\#.\\w]+)\\(([^)]+)\\)").matcher(text);
+        if (mss.find()) {
+            return text.replace(mss.group(), "").trim();
+        } else {
+            return text.replace(text.split(" ")[0], "").trim();
         }
-        roothtml.updateInnertxt();
-        return roothtml.toString();
     }
 
-    private void setIDsAndClasses(Block b, String s) {
+    /**
+     *
+     * @param text
+     * @return
+     */
+    public String getTagFromLine(String text) {
+        text = text.trim();
+        Matcher mss = Pattern.compile("([\\#.\\w]+)\\(([^)]+)\\)").matcher(text);
+        if (mss.find()) {
+            return mss.group();
+        } else {
+            return text.split(" ")[0];
+        }
+    }
+
+    /**
+     *
+     * @param text
+     * @return
+     */
+    public Block renderDom(String text) {
+        text = text.trim();
+        String lines[] = text.split("\n");
+        Dom dom = new Dom();
+        dom.addToDom(new Dom.Domlines(lines[0], 0, 0, new Block(getTagFromLine(lines[0]), 0)));
+        for (int i = 1; i < lines.length; i++) {
+            String CurrentLine = lines[i];
+            if(CurrentLine.trim().length()<1) continue;
+            int CurrentIndentCount = indetCount(CurrentLine);
+            try {
+                Dom.Domlines superdom = dom.getFromIndent(i, CurrentIndentCount - 1);
+                Block b = new Block(getTagFromLine(CurrentLine), CurrentIndentCount);
+                b.setIntertxt(getTextFromLine(CurrentLine));
+                setIDsAndClasses(b, getTagFromLine(CurrentLine));
+                if (superdom == null) {
+                    throw new Exception("Root Block Is Missing");
+                }
+                superdom.getLineblock().addBlock(b);
+                dom.addToDom(new Dom.Domlines(CurrentLine, i, CurrentIndentCount, b));
+            } catch (Exception e) {
+                e.printStackTrace();
+                throw new RuntimeException(e.getMessage() + " --> Line[" + i + "],Indent[" + CurrentIndentCount + "] => " + CurrentLine);
+            }
+        }
+        return dom.getBlock();
+    }
+
+    private void setIDsAndClasses(Block b, String s) throws Exception {
         String name = s.split("\\(")[0];
         String hash[] = name.split("#");
         String dot[] = name.split("\\.");
@@ -81,48 +116,16 @@ public class PugCompiler {
             String attribs[] = s.substring(s.indexOf("(") + 1, s.indexOf(")")).split(",");
             for (int i = 0; i < attribs.length; i++) {
                 String key[] = attribs[i].split("=");
-                if (key.length>1) {
+                if (key.length > 1) {
                     b.addAttribute(key[0], key[1].replaceAll("\"", "").replaceAll("'", ""));
-                }else{
+                } else {
                     b.addAttribute(key[0], "true");
                 }
             }
-            b.setTagename(b.getTagename().replaceAll(s.substring(s.indexOf("(")+1 , s.indexOf(")")), ""));
+            b.setTagename(b.getTagename().replaceAll(s.substring(s.indexOf("(") + 1, s.indexOf(")")), ""));
             b.setTagename(b.getTagename().replaceAll("\\(", ""));
             b.setTagename(b.getTagename().replaceAll("\\)", ""));
         }
     }
 
-    private int indetCount(String s) {
-        if (s.charAt(1) != ' ' && s.charAt(1) != '\t') {
-            return 0;
-        }
-        for (int i = 0; i < s.length(); i++) {
-            if (s.charAt(i) != ' ' && s.charAt(i) != '\t') {
-                return (s.charAt(i - 1) == '\t' ? i : i / 2);
-            }
-        }
-        return 0;
-    }
-
-    private String partOfPath(String currentpath, int s) {
-        if (s < 0) {
-            String rootpath = currentpath.substring(0, currentpath.length() + (s * 2));
-            int numb = Integer.parseInt(rootpath.substring(rootpath.length() - 1)) + 1;
-            return rootpath.substring(0, rootpath.length() - 2) + "." + numb;
-        } else if (s > 0) {
-            return currentpath + ".0";
-        } else {
-            int numb = Integer.parseInt(currentpath.substring(currentpath.length() - 1)) + 1;
-            return currentpath.substring(0, currentpath.length() - 2) + "." + numb;
-        }
-    }
-
-    private String getIndent(int indent) {
-        String s = "";
-        for (int i = 0; i < indent; i++) {
-            s += "\t";
-        }
-        return s;
-    }
 }

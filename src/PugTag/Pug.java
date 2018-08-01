@@ -21,11 +21,16 @@ public class Pug extends SimpleTagSupport {
 
     StringWriter sw = new StringWriter();
     
+    /**
+     *
+     * @throws JspException
+     * @throws IOException
+     */
     public void doTag() throws JspException, IOException {
         getJspBody().invoke(sw);
         JspWriter out = getJspContext().getOut();
         try {
-            out.println(new PugCompiler().renderFormtext(sw.getBuffer().toString()));
+            out.println(new PugCompiler().renderDom(sw.getBuffer().toString()));
         } catch (Exception e) {
             out.println(new Alert(e.toString()).danger());
         }
